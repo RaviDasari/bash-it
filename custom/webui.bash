@@ -10,6 +10,7 @@ alias myip='ifconfig | grep "inet " | grep -v 127.0.0.1'
 
 # git
 alias gitprune='git branch --merged | grep -v "\*" | grep -v master | grep -v dev | xargs -n 1 git branch -d'
+alias mybranch='git rev-parse --abbrev-ref HEAD'
 
 # webui
 alias webui='cd /gitviews/webui; pwd'
