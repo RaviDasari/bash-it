@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 
+# If not running interactively, don't do anything
+case $- in
+  *i*) ;;
+    *) return;;
+esac
+
 # Path to the bash it configuration
 export BASH_IT="{{BASH_IT}}"
 
-# Lock and Load a custom theme file
+# Lock and Load a custom theme file.
+# Leave empty to disable theming.
 # location /.bash_it/themes/
 export BASH_IT_THEME='bobby'
 
