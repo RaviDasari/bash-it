@@ -15,18 +15,29 @@ alias max_user_watch='echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc
 # git
 alias gitprune='git branch --merged | grep -v "\*" | grep -v master | grep -v dev | xargs -n 1 git branch -d'
 alias mybranch='git rev-parse --abbrev-ref HEAD'
+alias gitrecent='git branch --sort=-committerdate | head -n 20'
 
 # webui
 alias webui='cd /gitviews/webui; pwd; npm start'
 alias webui-git='cd /gitviews/webui; pwd; gs'
 alias clearIdea='rm -rf /gitviews/webui/.idea; echo removed webui .idea'
-alias proxy='cd /gitviews/webui-proxy; pwd; node start'
+alias proxy='cd /gitviews/webui-proxy; pwd; npm start'
 alias own_source='sudo chown -R rdasari /gitviews'
 alias webmount='sudo mount -t nfs -o resvport,rw 10.197.120.235:/gitviews /private/nfs'
 alias webumount='sudo umount /private/nfs'
 
 
 git config --system core.autocrlf input
+
+
+function git-set-upstream() {
+  CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  git branch --set-upstream-to=origin/$CURRENT_BRANCH $CURRENT_BRANCH
+}
+
+function git-set-u() {
+  git-set-upstream
+}
 
 function update_theme(){
   echo "this is used to keep ensure the hash doesn't get updated when updating to the latest theme"
@@ -136,6 +147,10 @@ function git-purge() {
   echo "Remaining local branches:"
   git branch -vv
   echo "Done."
+}
+
+function touch2() {
+  mkdir -p "$(dirname "$1")" && touch "$1"
 }
 
 # only for webui
