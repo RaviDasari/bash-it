@@ -16,15 +16,18 @@ alias max_user_watch='echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc
 alias gitprune='git branch --merged | grep -v "\*" | grep -v master | grep -v dev | xargs -n 1 git branch -d'
 alias mybranch='git rev-parse --abbrev-ref HEAD'
 alias gitrecent='git branch --sort=-committerdate | head -n 20'
+alias gcor='git checkout --recurse-submodules'
+alias git-tracking="git for-each-ref --format='%(refname:short) <- %(upstream:short)' refs/heads"
 
 # webui
-alias webui='cd /gitviews/webui; pwd; npm start'
-alias webui-git='cd /gitviews/webui; pwd; gs'
-alias clearIdea='rm -rf /gitviews/webui/.idea; echo removed webui .idea'
-alias proxy='cd /gitviews/webui-proxy; pwd; npm start'
-alias own_source='sudo chown -R rdasari /gitviews'
-alias webmount='sudo mount -t nfs -o resvport,rw 10.197.120.235:/gitviews /private/nfs'
+alias webui='cd ~/gitviews/webui; pwd; npm start'
+alias webui-git='cd ~/gitviews/webui; pwd; gs'
+alias clearIdea='rm -rf ~/gitviews/webui/.idea; echo removed webui .idea'
+alias proxy='cd ~/gitviews/webui-proxy; pwd; npm start'
+alias own_source='sudo chown -R rdasari ~/gitviews'
+alias webmount='sudo mount -t nfs -o resvport,rw 10.197.120.235:~/gitviews /private/nfs'
 alias webumount='sudo umount /private/nfs'
+alias oc-demo-portal='oc login https://10.197.121.102:8443 --username=cluster-admin'
 
 
 git config --system core.autocrlf input
@@ -109,6 +112,22 @@ function checkout(){
     fi
 }
 
+function port-in-use() {
+  PORT=$1
+  if [ -z "$1" ]; 
+    then 
+      echo "Port param required ! Ex: port-in-use 3003"; 
+    else
+      #  netstat -anp tcp | grep LISTEN
+      lsof -i tcp:$PORT
+  fi
+}
+
+function unsafe_chrome() {
+  TENANT_NAME=$1
+  /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --user-data-dir=/tmp/foo --ignore-certificate-errors --unsafely-treat-insecure-origin-as-secure=https://${TENANT_NAME}.oci.cloudinsights-qa.netapp.com
+}
+
 function setupvm() {
   echo 'Setting up this vm...\n'
   
@@ -158,6 +177,30 @@ function setupssh() {
     git remote set-url origin ssh://git@stash.nane.openenglab.netapp.com:7999/san/webui.git
     cd theme
     git remote set-url origin ssh://git@stash.nane.openenglab.netapp.com:7999/san/webui-theme.git
+}
+
+function runUnitTest() {
+  options=$2
+  FILE_BASE_PATH=`echo "$1" | sed 's/.*src\///' | sed 's/\.js//'`
+  node 'node_modules/.bin/jest' "tests/${FILE_BASE_PATH}.spec.js" $options
+}
+
+function runBrowserTest() {
+  options=$2
+  cd ~/gitviews/webui/browser-tests
+  FILE_BASE_PATH=`echo "$1" | sed 's/.*browser-tests\///'`
+  echo "Running browser tests for $FILE_BASE_PATH"
+  testcafe --live chrome ${FILE_BASE_PATH} $options
+}
+
+function countLinesInFolder() {
+  FILE_BASE_PATH=`echo "$1" | sed 's/.*src\///'`
+  find src/${FILE_BASE_PATH} \
+      tests/${FILE_BASE_PATH} \
+      browser-tests/src/tests/${FILE_BASE_PATH} -name '*.*' -type f | \
+      grep -v __snapshots__ | \
+      grep -v .json | \
+      xargs wc -l
 }
 
 export SCM_GIT_SHOW_MINIMAL_INFO=true
