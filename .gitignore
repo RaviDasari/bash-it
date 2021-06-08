@@ -17,3 +17,4 @@ bats
 enabled/*
 /enabled
 tmp/
+.history/
